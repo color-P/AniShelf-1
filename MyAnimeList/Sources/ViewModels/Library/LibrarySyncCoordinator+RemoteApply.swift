@@ -127,7 +127,13 @@ extension LibrarySyncCoordinator {
         if let plannedEntry = plannedEntriesByIdentity[snapshot.identity] {
             entry = plannedEntry
         } else {
-            entry = try await hydrateMissingEntry(snapshot, store)
+            do {
+                entry = try await hydrateMissingEntry(snapshot, store)
+            } catch is CancellationError {
+                throw CancellationError()
+            } catch {
+                throw LibrarySyncHydrationError(identity: snapshot.identity, underlyingError: error)
+            }
             plannedEntriesByIdentity[snapshot.identity] = entry
             entriesToInsert.append(entry)
         }
@@ -159,11 +165,21 @@ extension LibrarySyncCoordinator {
             return plannedParent
         }
 
-        let parentSeriesEntry = try await AnimeEntry.generateParentSeriesEntryForSeason(
-            parentSeriesID: parentSeriesID,
-            fetcher: store.infoFetcher,
-            infoLanguage: store.language
-        )
+        let parentSeriesEntry: AnimeEntry
+        do {
+            parentSeriesEntry = try await AnimeEntry.generateParentSeriesEntryForSeason(
+                parentSeriesID: parentSeriesID,
+                fetcher: store.infoFetcher,
+                infoLanguage: store.language
+            )
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            throw LibrarySyncHydrationError(
+                identity: parentIdentity,
+                underlyingError: error
+            )
+        }
         plannedEntriesByIdentity[parentIdentity] = parentSeriesEntry
         entriesToInsert.append(parentSeriesEntry)
         return parentSeriesEntry
@@ -184,6 +200,18 @@ extension LibrarySyncCoordinator {
         entry.dateSaved = snapshot.dateSaved
         entry.replaceDetail(from: latestInfo.1)
         return entry
+    }
+}
+
+/// Adds the failed metadata identity without changing retry classification.
+struct LibrarySyncHydrationError: LocalizedError {
+    let identity: LibraryEntryIdentity
+    let underlyingError: Error
+
+    var errorDescription: String? {
+        let error = underlyingError as NSError
+        let details = "\(error.localizedDescription) [\(error.domain):\(error.code)]"
+        return String(localized: "Could not restore metadata for \(identity.rawID): \(details)")
     }
 }
 

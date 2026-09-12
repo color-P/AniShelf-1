@@ -28,7 +28,7 @@ extension LibrarySyncCoordinator {
             state.currentPhase = phase
             store.recordLibraryCloudSyncPhase(
                 trigger: trigger,
-                phase: phase,
+                phase: phase.progressPhase,
                 at: state.dateProvider()
             )
             let value = try await operation()

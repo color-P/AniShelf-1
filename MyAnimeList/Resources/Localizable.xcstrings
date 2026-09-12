@@ -2587,6 +2587,22 @@
         }
       }
     },
+    "Could not restore metadata for %@: %@" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ のメタデータを復元できませんでした: %2$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法恢复 %1$@ 的元数据：%2$@"
+          }
+        }
+      }
+    },
     "Couldn't load details" : {
       "localizations" : {
         "ja" : {
@@ -3518,6 +3534,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "正在导出更改"
+          }
+        }
+      }
+    },
+    "Failed during %@: %@" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 中に失敗しました: %2$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 %1$@ 阶段失败：%2$@"
           }
         }
       }

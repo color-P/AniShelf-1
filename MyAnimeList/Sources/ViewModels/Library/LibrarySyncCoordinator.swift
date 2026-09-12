@@ -79,7 +79,7 @@ final class LibrarySyncCoordinator {
         activeSyncRequestCount > 0
     }
 
-    typealias SyncPhase = LibraryCloudSyncPhase
+    typealias SyncPhase = LibraryCloudSyncOperation
 
     /// Creates the coordinator and wires the sync pipeline dependencies.
     ///
@@ -518,6 +518,7 @@ final class LibrarySyncCoordinator {
             }
             status.currentPhase = nil
             status.lastResult = nil
+            status.lastFailurePhase = nil
             status.lastFailureReason = nil
         }
 
@@ -627,6 +628,9 @@ struct LocalSettingsSnapshotState {
 
 extension Error {
     var isPermanentLibrarySyncFailure: Bool {
+        if let hydrationError = self as? LibrarySyncHydrationError {
+            return hydrationError.underlyingError.isPermanentLibrarySyncFailure
+        }
         if self is DisabledCloudLibrarySyncDatabase.DisabledError {
             return true
         }

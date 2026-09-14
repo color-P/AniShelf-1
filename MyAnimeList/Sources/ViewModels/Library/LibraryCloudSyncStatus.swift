@@ -203,6 +203,7 @@ struct LibraryCloudSyncStatus: Equatable {
     var lastAttemptDate: Date?
     var lastSuccessfulSyncDate: Date?
     var lastReconciledCloudSyncedSettingsUpdatedAt: Date?
+    var restoration: LibraryRestorationState?
     var lastFailurePhase: LibraryCloudSyncOperation?
     var lastFailureReason: String?
     var degradedReason: String?
@@ -220,6 +221,7 @@ struct LibraryCloudSyncStatus: Equatable {
         lastAttemptDate: nil,
         lastSuccessfulSyncDate: nil,
         lastReconciledCloudSyncedSettingsUpdatedAt: nil,
+        restoration: nil,
         lastFailurePhase: nil,
         lastFailureReason: nil,
         degradedReason: nil,

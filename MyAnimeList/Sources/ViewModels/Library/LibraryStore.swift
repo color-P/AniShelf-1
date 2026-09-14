@@ -427,7 +427,7 @@ class LibraryStore {
         await bootstrapLibraryCloudSyncEnablement().succeeded
     }
 
-    func bootstrapLibraryCloudSyncEnablement() async -> LibrarySyncCoordinator.SyncResult {
+    func bootstrapLibraryCloudSyncEnablement(isUserRetry: Bool = false) async -> LibrarySyncCoordinator.SyncResult {
         updateLibraryCloudSyncStatus { status in
             status.isEnabled = true
             status.bootstrapState = .running
@@ -465,7 +465,7 @@ class LibraryStore {
             }
             return .permanentFailure
         }
-        return await syncCoordinator.bootstrapFirstEnablement(preference: nil)
+        return await syncCoordinator.bootstrapFirstEnablement(preference: nil, isUserRetry: isUserRetry)
     }
 
     @discardableResult
@@ -530,7 +530,7 @@ class LibraryStore {
             status.degradedReason = nil
             status.lastCompletedScope = nil
         }
-        return await bootstrapLibraryCloudSyncEnablement().succeeded
+        return await bootstrapLibraryCloudSyncEnablement(isUserRetry: true).succeeded
     }
 
     /// Resets persisted sync metadata that belonged to a replaced local store.
@@ -559,6 +559,7 @@ class LibraryStore {
             return
         }
 
+        updateLibraryCloudSyncStatus { $0.restoration = nil }
         shouldResumeInterruptedCloudSyncBootstrap = true
         updateLibraryCloudSyncStatus { status in
             status.isEnabled = true
@@ -580,6 +581,7 @@ class LibraryStore {
         }
         updateLibraryCloudSyncStatus { status in
             status.isEnabled = false
+            status.restoration = nil
             status.bootstrapState = .notStarted
             status.pendingConflictSummary = nil
             status.currentPhase = nil
@@ -612,7 +614,7 @@ class LibraryStore {
             libraryCloudSyncStatus.bootstrapState == .failed
                 || libraryCloudSyncStatus.bootstrapState == .notStarted
         {
-            return await enableLibraryCloudSync()
+            return await bootstrapLibraryCloudSyncEnablement(isUserRetry: true).succeeded
         }
         return await performLibrarySync(trigger: .manualRetry)
     }
@@ -684,6 +686,7 @@ class LibraryStore {
     ) {
         updateLibraryCloudSyncStatus { status in
             if completedBootstrap {
+                status.restoration = nil
                 status.bootstrapState = .completed
                 status.lastCompletedScope = completedScope
             }

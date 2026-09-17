@@ -2,7 +2,7 @@ import Foundation
 import Combine
 
 final class DownloadDirectoryStore: ObservableObject {
-    static let shared = DownloadDirectoryStore()
+    nonisolated(unsafe) static let shared = DownloadDirectoryStore()
 
     @Published private(set) var directoryURL: URL?
     @Published private(set) var displayName = "应用内 Downloads"
@@ -74,7 +74,7 @@ struct DownloadTask: Identifiable {
 }
 
 final class DownloadManager: NSObject, ObservableObject {
-    static let shared = DownloadManager()
+    nonisolated(unsafe) static let shared = DownloadManager()
 
     @Published private(set) var tasks: [UUID: DownloadTask] = [:]
 

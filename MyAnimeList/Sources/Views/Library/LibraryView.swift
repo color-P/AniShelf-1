@@ -34,6 +34,7 @@ struct LibraryView: View {
     @State var highlightedEntryID: LibraryEntryIdentity?
     @State var scrollRequest: LibraryScrollRequest?
     @State private var inspectorDetailWorkspaceState = LibraryInspectorDetailWorkspaceState()
+    @State private var showVideoExtractor = false
 
     // Multi-selection snapshot: decouples selection rendering from live store
     // recomputation so toggling items stays cheap. See LibraryView+MultiSelection.
@@ -122,6 +123,9 @@ struct LibraryView: View {
             LibraryDuplicateRepairSheet(store: store)
                 .presentationDetents([.large])
                 .presentationSizing(.page)
+        }
+        .fullScreenCover(isPresented: $showVideoExtractor) {
+            ContentView()
         }
     }
 
@@ -285,6 +289,14 @@ struct LibraryView: View {
                     processTMDbSearchResults: processTMDbSearchResults,
                     jumpToEntryInLibrary: jumpToEntryInLibrary
                 )
+
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showVideoExtractor = true
+                    } label: {
+                        Label("提取", systemImage: "play.rectangle.on.rectangle")
+                    }
+                }
             }
             .environment(interaction)
             .navigationTitle("")

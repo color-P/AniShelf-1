@@ -22,7 +22,7 @@ jobs:
 
       - name: Build unsigned IPA
         run: |
-          xcodebuild archive \
+          xcodebuild -quiet archive \
             -project MyAnimeList.xcodeproj \
             -scheme "$SCHEME" \
             -configuration "$CONFIGURATION" \

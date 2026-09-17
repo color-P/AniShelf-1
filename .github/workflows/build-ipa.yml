@@ -1,0 +1,45 @@
+name: Build AniShelf Video Extractor IPA
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-26
+    env:
+      SCHEME: MyAnimeList
+      CONFIGURATION: Release
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Build unsigned IPA
+        run: |
+          xcodebuild archive \
+            -project MyAnimeList.xcodeproj \
+            -scheme "$SCHEME" \
+            -configuration "$CONFIGURATION" \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/MyAnimeList.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+          mkdir -p build/Payload
+          cp -R build/MyAnimeList.xcarchive/Products/Applications/MyAnimeList.app build/Payload/
+          cd build
+          ditto -c -k --sequesterRsrc --keepParent Payload MyAnimeList-unsigned.ipa
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyAnimeList-unsigned-ipa
+          path: build/MyAnimeList-unsigned.ipa
+          if-no-files-found: error
